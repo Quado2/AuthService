@@ -41,11 +41,11 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-
+    @Data
+    class RoleToUserForm {
+        private String username;
+        private String roleName;
+    }
 }
 
-@Data
-class RoleToUserForm {
-    private String username;
-    private String roleName;
-}
+
