@@ -1,17 +1,22 @@
 package io.quado.authservice.security;
 
 import io.quado.authservice.domain.AppUser;
+import io.quado.authservice.filters.CustomAuthenticationFilter;
 import io.quado.authservice.repo.AppUserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +30,9 @@ import javax.activation.DataSource;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static io.quado.authservice.security.MyCustomDsl.customDsl;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -32,6 +40,8 @@ import java.util.Collection;
 public class SecurityConfig {
 
     private AppUserRepo userRepo;
+
+
 
     @Bean
     public UserDetailsService userDetailsService(){
@@ -57,23 +67,24 @@ public class SecurityConfig {
         };
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
 
-
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authz) -> authz.anyRequest().permitAll())
-                .httpBasic(Customizer.withDefaults());
+//        http.authorizeHttpRequests((authz) -> authz.anyRequest().permitAll())
+//                .httpBasic(Customizer.withDefaults());
+
+        http.csrf().disable();
+        http.sessionManagement().sessionCreationPolicy(STATELESS);
+        http.authorizeHttpRequests().anyRequest().permitAll();
+        http.apply(customDsl());
+
 
         return http.build();
     }
+
+
 }
+
+
+
