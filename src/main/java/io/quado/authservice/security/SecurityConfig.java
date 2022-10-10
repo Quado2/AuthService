@@ -3,6 +3,7 @@ package io.quado.authservice.security;
 import io.quado.authservice.domain.AppUser;
 import io.quado.authservice.filters.CustomAuthenticationFilter;
 import io.quado.authservice.repo.AppUserRepo;
+import io.quado.authservice.shared.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static io.quado.authservice.security.MyCustomDsl.customDsl;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -67,7 +70,6 @@ public class SecurityConfig {
                     authorities.add(new SimpleGrantedAuthority(role.getName()));
                 });
 
-                // The User class is obtained from org.springframework.security.core.userdetails.User
                 return new User(user.getUsername(), user.getPassword(),authorities);
             }
         };
@@ -82,6 +84,9 @@ public class SecurityConfig {
 
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
+        http.authorizeHttpRequests().antMatchers(Constants.LOGIN_URL+"/**").permitAll();
+        http.authorizeHttpRequests().antMatchers(GET, "/api/user/**").hasAnyAuthority("ROLE_USER");
+        http.authorizeHttpRequests().antMatchers(POST, "api/user/save/**").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().anyRequest().permitAll();
         http.apply(customDsl());
 
