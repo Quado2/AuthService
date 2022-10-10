@@ -2,6 +2,7 @@ package io.quado.authservice.security;
 
 import io.quado.authservice.domain.AppUser;
 import io.quado.authservice.filters.CustomAuthenticationFilter;
+import io.quado.authservice.filters.CustomAuthorizationFilter;
 import io.quado.authservice.repo.AppUserRepo;
 import io.quado.authservice.shared.Constants;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.activation.DataSource;
 import java.util.ArrayList;
@@ -89,6 +91,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests().antMatchers(POST, "api/user/save/**").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().anyRequest().permitAll();
         http.apply(customDsl());
+        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();
