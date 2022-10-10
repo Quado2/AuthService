@@ -39,7 +39,13 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Slf4j
 public class SecurityConfig {
 
+
     private AppUserRepo userRepo;
+
+    @Autowired
+    public SecurityConfig(AppUserRepo userRepo){
+        this.userRepo = userRepo;
+    }
 
 
 
