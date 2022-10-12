@@ -10,6 +10,7 @@ import io.quado.authservice.domain.Role;
 import io.quado.authservice.repo.AppUserRepo;
 import io.quado.authservice.repo.RoleRepo;
 import io.quado.authservice.shared.Constants;
+import io.quado.authservice.shared.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -82,17 +83,12 @@ public class AppUserServiceImpl implements  AppUserService {
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             try {
                 String refresh_token = authorizationHeader.substring("Bearer ".length());
-                Algorithm algorithm = Algorithm.HMAC256(Constants.JWT_SECRET.getBytes());
-                JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-                DecodedJWT decodedJWT = jwtVerifier.verify(refresh_token);
+                DecodedJWT decodedJWT = TokenUtils.verifyToken(refresh_token);
                 String username = decodedJWT.getSubject();
                 AppUser user = getUser(username);
-                String access_token = JWT.create()
-                        .withSubject(user.getUsername())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-                        .withIssuer(request.getRequestURL().toString())
-                        .withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
-                        .sign(algorithm);
+                List<String> roles =  user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+                String issuer = request.getRequestURL().toString();
+                String access_token = TokenUtils.generateAccessToken(username,issuer, roles);
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);

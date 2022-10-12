@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
-
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 
@@ -58,7 +57,8 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         String accessToken = TokenUtils.generateAccessToken(user.getUsername(),requestUrl,roles);
         String refreshToken = TokenUtils.generateRefreshToken(user.getUsername(), requestUrl);
-
+        log.info(accessToken);
+        log.info(refreshToken);
         Map<String, String> tokens = new HashMap<>();
         tokens.put("refresh_token", refreshToken);
         tokens.put("access_token", accessToken);
