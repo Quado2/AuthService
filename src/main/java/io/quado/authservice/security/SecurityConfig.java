@@ -86,7 +86,7 @@ public class SecurityConfig {
 
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
-        http.authorizeHttpRequests().antMatchers(Constants.LOGIN_URL+"/**").permitAll();
+        http.authorizeHttpRequests().antMatchers(Constants.LOGIN_URL+"/**",Constants.TOKEN_REFRESH_URL + "/**").permitAll();
         http.authorizeHttpRequests().antMatchers(GET, "/api/user/**").hasAnyAuthority("ROLE_USER");
         http.authorizeHttpRequests().antMatchers(POST, "api/user/save/**").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeHttpRequests().anyRequest().permitAll();
